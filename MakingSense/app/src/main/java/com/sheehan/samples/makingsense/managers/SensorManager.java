@@ -1,15 +1,9 @@
 package com.sheehan.samples.makingsense.managers;
 
 /**
- * Created by izm520 on 8/21/16.
+ * Created by jsheehan on 9/11/16.
  */
-public class SensorManager {
-    private static SensorManager sInstance;
-    private SensorManager(){}
-    public static SensorManager getInstance(){
-        if(sInstance == null){
-            sInstance = new SensorManager();
-        }
-        return sInstance;
-    }
+public interface SensorManager {
+    void connect();
+    void disconnect();
 }
