@@ -3,6 +3,7 @@ package com.sheehan.samples.makingsense.managers;
 import android.content.Context;
 import android.graphics.LightingColorFilter;
 import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
 
 import com.sheehan.samples.makingsense.sensor.base.SensorClass;
 import com.sheehan.samples.makingsense.sensor.implementation.AccelerometerSensor;
@@ -16,27 +17,19 @@ import java.util.List;
  */
 public class SensorManagerImpl implements SensorManager{
     //https://developer.android.com/guide/topics/sensors/sensors_overview.html
-
-    private static SensorManagerImpl sInstance;
-    private SensorManagerImpl(){}
-    public static SensorManager getInstance(){
-        if(sInstance == null){
-            sInstance = new SensorManagerImpl();
-        }
-        return sInstance;
-    }
+    public SensorManagerImpl(){}
 
     /**
      * connect
      */
     @Override
-    public void connect() {
+    public void connect(SensorEventListener listener) {
         SensorTypeEnums[] sensorTypeEnumsList = SensorTypeEnums.values();
         for(SensorTypeEnums sensorTypeEnum: sensorTypeEnumsList){
             //Setup all the sensor types
             SensorClass sensorClass = getSensor(sensorTypeEnum);
             if(sensorClass != null){
-                sensorClass.connect();
+                sensorClass.connect(listener);
             }
         }
     }
@@ -46,7 +39,14 @@ public class SensorManagerImpl implements SensorManager{
      */
     @Override
     public void disconnect() {
-
+        SensorTypeEnums[] sensorTypeEnumsList = SensorTypeEnums.values();
+        for(SensorTypeEnums sensorTypeEnum: sensorTypeEnumsList){
+            //Setup all the sensor types
+            SensorClass sensorClass = getSensor(sensorTypeEnum);
+            if(sensorClass != null){
+                sensorClass.disconnect();
+            }
+        }
     }
 
     private static SensorClass getSensor(SensorTypeEnums sensorTypeEnum) {
