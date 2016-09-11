@@ -1,6 +1,7 @@
 package com.sheehan.samples.makingsense.sensor.implementation;
 
 import android.content.Context;
+import android.hardware.SensorEventListener;
 
 import com.sheehan.samples.makingsense.MakingSenseApplication;
 import com.sheehan.samples.makingsense.sensor.base.SensorBase;
@@ -23,7 +24,13 @@ public class AccelerometerSensor extends SensorBase implements SensorClass{
         return sInstance;
     }
 
-    public void connect(){
+    @Override
+    public void connect(SensorEventListener listener){
+        super.connect(listener);
+    }
 
+    @Override
+    public void disconnect(){
+        super.disconnect();
     }
 }
