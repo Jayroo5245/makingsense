@@ -1,5 +1,8 @@
 package com.sheehan.samples.makingsense.ui;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,11 +15,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.sheehan.samples.makingsense.MakingSenseApplication;
 import com.sheehan.samples.makingsense.R;
+import com.sheehan.samples.makingsense.managers.SensorManager;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+
+    private int mSensorsOff = R.drawable.ic_notification_sync_disabled;
+    private int mSensorsOn = R.drawable.ic_notification_sync;
+    private SensorManager mSensorManager;
+    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,15 +34,16 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        mSensorManager = MakingSenseApplication.getInstance().getSensorManager();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = (FloatingActionButton) findViewById(R.id.fab_button);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                updateSensorState();
             }
         });
+        updateSensorState();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -42,6 +53,18 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void updateSensorState(){
+        if(mSensorManager.isConnected()){
+            mSensorManager.disconnect();
+            mFab.setImageResource(mSensorsOff);
+            Toast.makeText(MainActivity.this, "Disabling sensors...", Toast.LENGTH_SHORT).show();
+        } else {
+            mSensorManager.connect();
+            mFab.setImageResource(mSensorsOn);
+            Toast.makeText(MainActivity.this, "Enabling sensors...", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

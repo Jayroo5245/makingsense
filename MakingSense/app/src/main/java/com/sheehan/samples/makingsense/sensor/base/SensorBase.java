@@ -18,8 +18,8 @@ public class SensorBase {
     private SensorManager mSensorManager;
 
     public SensorBase(final Context context, SensorTypeEnums sensorTypeEnums) {
-        SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        mSensor = sensorManager.getDefaultSensor(sensorTypeEnums.getType());
+        mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(sensorTypeEnums.getType());
         mSensorTypeEnums = sensorTypeEnums;
     }
 

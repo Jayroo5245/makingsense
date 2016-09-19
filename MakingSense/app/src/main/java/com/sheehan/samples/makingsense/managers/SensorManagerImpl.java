@@ -16,6 +16,7 @@ import java.util.List;
  * Created by izm520 on 8/21/16.
  */
 public class SensorManagerImpl implements SensorManager{
+    private boolean isConnected;
     //https://developer.android.com/guide/topics/sensors/sensors_overview.html
     public SensorManagerImpl(){}
 
@@ -23,13 +24,14 @@ public class SensorManagerImpl implements SensorManager{
      * connect
      */
     @Override
-    public void connect(SensorEventListener listener) {
+    public void connect() {
+        isConnected = true;
         SensorTypeEnums[] sensorTypeEnumsList = SensorTypeEnums.values();
         for(SensorTypeEnums sensorTypeEnum: sensorTypeEnumsList){
             //Setup all the sensor types
             SensorClass sensorClass = getSensor(sensorTypeEnum);
             if(sensorClass != null){
-                sensorClass.connect(listener);
+                sensorClass.connect();
             }
         }
     }
@@ -47,6 +49,7 @@ public class SensorManagerImpl implements SensorManager{
                 sensorClass.disconnect();
             }
         }
+        isConnected = false;
     }
 
     private static SensorClass getSensor(SensorTypeEnums sensorTypeEnum) {
@@ -58,5 +61,9 @@ public class SensorManagerImpl implements SensorManager{
             default:
                 return null;
         }
+    }
+
+    public boolean isConnected(){
+        return isConnected;
     }
 }
