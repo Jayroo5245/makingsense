@@ -2,7 +2,6 @@ package com.sheehan.samples.makingsense.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.sheehan.samples.makingsense.R;
-import com.sheehan.samples.makingsense.sensor.base.SensorClass;
+import com.sheehan.samples.makingsense.sensor.value.SensorValue;
 
 import java.util.List;
 
@@ -18,11 +17,11 @@ import java.util.List;
  * Created by izm520 on 9/21/16.
  */
 public class SensorAdapter extends RecyclerView.Adapter<SensorAdapter.CustomViewHolder> {
-        private List<SensorClass> feedItemList;
+        private List<SensorValue> mSensorValueList;
         private Context mContext;
 
-        public SensorAdapter(Context context, List<SensorClass> feedItemList) {
-            this.feedItemList = feedItemList;
+        public SensorAdapter(Context context, List<SensorValue> sensorValueList) {
+            this.mSensorValueList = sensorValueList;
             this.mContext = context;
         }
 
@@ -36,7 +35,7 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorAdapter.CustomView
 
         @Override
         public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
-            SensorClass sensorClass = feedItemList.get(i);
+            SensorValue sensorValue = mSensorValueList.get(i);
 
             //Setting text view title
             //customViewHolder.textView.setText(Html.fromHtml(feedItem.getTitle()));
@@ -44,7 +43,7 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorAdapter.CustomView
 
         @Override
         public int getItemCount() {
-            return (null != feedItemList ? feedItemList.size() : 0);
+            return (null != mSensorValueList ? mSensorValueList.size() : 0);
         }
 
     class CustomViewHolder extends RecyclerView.ViewHolder {

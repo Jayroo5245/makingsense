@@ -6,10 +6,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 
 import com.sheehan.samples.makingsense.sensor.base.SensorClass;
+import com.sheehan.samples.makingsense.sensor.base.SensorContainer;
 import com.sheehan.samples.makingsense.sensor.implementation.AccelerometerSensor;
 import com.sheehan.samples.makingsense.sensor.implementation.GyroscopeSensor;
 import com.sheehan.samples.makingsense.sensor.utils.SensorTypeEnums;
+import com.sheehan.samples.makingsense.sensor.value.SensorValue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -65,5 +68,20 @@ public class SensorManagerImpl implements SensorManager{
 
     public boolean isConnected(){
         return isConnected;
+    }
+
+    @Override
+    public SensorContainer pop() {
+        SensorTypeEnums[] sensorTypeEnumsList = SensorTypeEnums.values();
+        List<SensorValue> sensorValueList = new ArrayList<>();
+        for(SensorTypeEnums sensorTypeEnum: sensorTypeEnumsList){
+            //Setup all the sensor types
+            SensorClass sensorClass = getSensor(sensorTypeEnum);
+            if(sensorClass != null){
+                sensorValueList.add(sensorClass.pop());
+            }
+        }
+        SensorContainer container = new SensorContainer(sensorValueList);
+        return container;
     }
 }

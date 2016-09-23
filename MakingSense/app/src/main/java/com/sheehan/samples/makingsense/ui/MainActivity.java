@@ -25,20 +25,29 @@ import com.sheehan.samples.makingsense.R;
 import com.sheehan.samples.makingsense.adapter.SensorAdapter;
 import com.sheehan.samples.makingsense.managers.SensorManager;
 import com.sheehan.samples.makingsense.sensor.base.SensorClass;
+import com.sheehan.samples.makingsense.sensor.base.SensorContainer;
 import com.sheehan.samples.makingsense.sensor.implementation.AccelerometerSensor;
 import com.sheehan.samples.makingsense.sensor.implementation.GyroscopeSensor;
+import com.sheehan.samples.makingsense.sensor.value.SensorValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     private int mSensorsOff = R.drawable.ic_notification_sync_disabled;
     private int mSensorsOn = R.drawable.ic_notification_sync;
+    private final int POOL_SIZE = 1;
     private SensorManager mSensorManager;
     private FloatingActionButton mFab;
     private RecyclerView mRecyclerView;
     private SensorAdapter mSensorAdapter;
+    private ScheduledThreadPoolExecutor mScheduledThreadPoolExecutor;
+    private Runnable mSensorPullRunnable;
+    private List<SensorValue> mSensorValueList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         initViews();
-        updateSensorState();
+        //updateSensorState();
     }
 
     private void initViews(){
@@ -72,28 +81,54 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 updateSensorState();
             }
         });
-        mSensorAdapter = new SensorAdapter(this, getSensorList());
+        mSensorAdapter = new SensorAdapter(this, mSensorValueList = getSensorList());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mSensorAdapter);
     }
 
-    private List<SensorClass> getSensorList(){
-        List<SensorClass> list = new ArrayList<>();
-        list.add(AccelerometerSensor.getSensor());
-        list.add(GyroscopeSensor.getSensor());
+    private List<SensorValue> getSensorList(){
+        List<SensorValue> list = new ArrayList<>();
         return list;
     }
 
     private void updateSensorState(){
         if(mSensorManager.isConnected()){
+            cancelScheduledSensorPull();
             mSensorManager.disconnect();
             mFab.setImageResource(mSensorsOff);
             Toast.makeText(MainActivity.this, "Sensors are off...", Toast.LENGTH_SHORT).show();
         } else {
             mSensorManager.connect();
             mFab.setImageResource(mSensorsOn);
+            scheduleSensorPull();
             Toast.makeText(MainActivity.this, "Sensors are on", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void scheduleSensorPull(){
+        mScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(POOL_SIZE);
+        mScheduledThreadPoolExecutor.scheduleWithFixedDelay(getSensorPullRunnable(), 1, 1, TimeUnit.SECONDS);
+    }
+
+    private void cancelScheduledSensorPull(){
+        mScheduledThreadPoolExecutor.shutdown();
+    }
+
+    private Runnable getSensorPullRunnable(){
+        if(mSensorPullRunnable == null){
+            mSensorPullRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    mSensorValueList.clear();
+                    SensorContainer sensorContainer = mSensorManager.pop();
+                    for(SensorValue sensorValue: sensorContainer.getSensorValues()){
+                        mSensorValueList.add(sensorValue);
+                    }
+                    mSensorAdapter.notifyDataSetChanged();
+                }
+            };
+        }
+        return mSensorPullRunnable;
     }
 
     @Override

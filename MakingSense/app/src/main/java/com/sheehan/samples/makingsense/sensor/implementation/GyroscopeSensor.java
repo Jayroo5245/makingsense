@@ -11,6 +11,12 @@ import com.sheehan.samples.makingsense.MakingSenseApplication;
 import com.sheehan.samples.makingsense.sensor.base.SensorBase;
 import com.sheehan.samples.makingsense.sensor.base.SensorClass;
 import com.sheehan.samples.makingsense.sensor.utils.SensorTypeEnums;
+import com.sheehan.samples.makingsense.sensor.value.AccelerometerValue;
+import com.sheehan.samples.makingsense.sensor.value.GyroscopeValue;
+import com.sheehan.samples.makingsense.sensor.value.SensorValue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by izm520 on 9/11/16.
@@ -40,7 +46,15 @@ public class GyroscopeSensor extends SensorBase implements SensorClass, SensorEv
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        //TODO
+        mSensorQueue.add(event);
+    }
+
+    @Override
+    public SensorValue pop() {
+        List<SensorEvent> list = new ArrayList<>(mSensorQueue);
+        SensorValue sensorValue = new GyroscopeValue(list);
+        mSensorQueue.clear();
+        return sensorValue;
     }
 
     @Override
