@@ -1,11 +1,14 @@
 package com.sheehan.samples.makingsense.ui;
 
+import android.graphics.LightingColorFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,7 +22,14 @@ import android.widget.Toast;
 
 import com.sheehan.samples.makingsense.MakingSenseApplication;
 import com.sheehan.samples.makingsense.R;
+import com.sheehan.samples.makingsense.adapter.SensorAdapter;
 import com.sheehan.samples.makingsense.managers.SensorManager;
+import com.sheehan.samples.makingsense.sensor.base.SensorClass;
+import com.sheehan.samples.makingsense.sensor.implementation.AccelerometerSensor;
+import com.sheehan.samples.makingsense.sensor.implementation.GyroscopeSensor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
@@ -27,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private int mSensorsOn = R.drawable.ic_notification_sync;
     private SensorManager mSensorManager;
     private FloatingActionButton mFab;
+    private RecyclerView mRecyclerView;
+    private SensorAdapter mSensorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,15 +48,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
         mSensorManager = MakingSenseApplication.getInstance().getSensorManager();
 
-        mFab = (FloatingActionButton) findViewById(R.id.fab_button);
-        mFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateSensorState();
-            }
-        });
-        updateSensorState();
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -53,17 +56,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        initViews();
+        updateSensorState();
+    }
+
+    private void initViews(){
+        //Get views
+        mFab = (FloatingActionButton) findViewById(R.id.fab_button);
+        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+
+        //initialize them
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateSensorState();
+            }
+        });
+        mSensorAdapter = new SensorAdapter(this, getSensorList());
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setAdapter(mSensorAdapter);
+    }
+
+    private List<SensorClass> getSensorList(){
+        List<SensorClass> list = new ArrayList<>();
+        list.add(AccelerometerSensor.getSensor());
+        list.add(GyroscopeSensor.getSensor());
+        return list;
     }
 
     private void updateSensorState(){
         if(mSensorManager.isConnected()){
             mSensorManager.disconnect();
             mFab.setImageResource(mSensorsOff);
-            Toast.makeText(MainActivity.this, "Disabling sensors...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Sensors are off...", Toast.LENGTH_SHORT).show();
         } else {
             mSensorManager.connect();
             mFab.setImageResource(mSensorsOn);
-            Toast.makeText(MainActivity.this, "Enabling sensors...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Sensors are on", Toast.LENGTH_SHORT).show();
         }
     }
 

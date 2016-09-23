@@ -2,6 +2,7 @@ package com.sheehan.samples.makingsense;
 
 import android.app.Application;
 
+import com.facebook.stetho.Stetho;
 import com.sheehan.samples.makingsense.managers.SensorManager;
 import com.sheehan.samples.makingsense.managers.SensorManagerImpl;
 
@@ -16,6 +17,7 @@ public class MakingSenseApplication extends Application {
         super.onCreate();
         sInstance = this;
         mSensorManager = new SensorManagerImpl();
+        Stetho.initializeWithDefaults(this);
     }
 
     public static MakingSenseApplication getInstance() {
