@@ -17,43 +17,49 @@ import java.util.List;
  * Created by izm520 on 9/21/16.
  */
 public class SensorAdapter extends RecyclerView.Adapter<SensorAdapter.CustomViewHolder> {
-        private List<SensorValue> mSensorValueList;
-        private Context mContext;
+    private List<SensorValue> mSensorValueList;
+    private Context mContext;
 
-        public SensorAdapter(Context context, List<SensorValue> sensorValueList) {
-            this.mSensorValueList = sensorValueList;
-            this.mContext = context;
+    public SensorAdapter(Context context, List<SensorValue> sensorValueList) {
+        this.mSensorValueList = sensorValueList;
+        this.mContext = context;
+    }
+
+    @Override
+    public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.sensor_list_item, null);
+
+        CustomViewHolder viewHolder = new CustomViewHolder(view);
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
+        SensorValue sensorValue = mSensorValueList.get(i);
+
+        //Setting text view title
+        customViewHolder.textViewTitle.setText(sensorValue.getType().getName());
+        if (sensorValue.getValue() != null && sensorValue.getValue().size() > 0) {
+            customViewHolder.mHertzTextView.setText("Hertz: " + String.valueOf(sensorValue.getValue().size()));
+        } else {
+            customViewHolder.mHertzTextView.setText("Hertz: N/A");
         }
+    }
 
-        @Override
-        public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.sensor_list_item, null);
-
-            CustomViewHolder viewHolder = new CustomViewHolder(view);
-            return viewHolder;
-        }
-
-        @Override
-        public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
-            SensorValue sensorValue = mSensorValueList.get(i);
-
-            //Setting text view title
-            //customViewHolder.textView.setText(Html.fromHtml(feedItem.getTitle()));
-        }
-
-        @Override
-        public int getItemCount() {
-            return (null != mSensorValueList ? mSensorValueList.size() : 0);
-        }
+    @Override
+    public int getItemCount() {
+        return (null != mSensorValueList ? mSensorValueList.size() : 0);
+    }
 
     class CustomViewHolder extends RecyclerView.ViewHolder {
-        protected ImageView imageView;
-        protected TextView textView;
+        public TextView textViewTitle;
+        public TextView mHertzTextView;
 
         public CustomViewHolder(View view) {
             super(view);
             //this.imageView = (ImageView) view.findViewById(R.id.thumbnail);
-            this.textView = (TextView) view.findViewById(R.id.title);
+            this.textViewTitle = (TextView) view.findViewById(R.id.title);
+            mHertzTextView = (TextView) view.findViewById(R.id.hertz_labelTextView);
         }
     }
 }

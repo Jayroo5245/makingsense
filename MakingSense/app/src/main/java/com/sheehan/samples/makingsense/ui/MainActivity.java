@@ -1,12 +1,7 @@
 package com.sheehan.samples.makingsense.ui;
 
-import android.graphics.LightingColorFilter;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -24,10 +19,9 @@ import com.sheehan.samples.makingsense.MakingSenseApplication;
 import com.sheehan.samples.makingsense.R;
 import com.sheehan.samples.makingsense.adapter.SensorAdapter;
 import com.sheehan.samples.makingsense.managers.SensorManager;
-import com.sheehan.samples.makingsense.sensor.base.SensorClass;
 import com.sheehan.samples.makingsense.sensor.base.SensorContainer;
-import com.sheehan.samples.makingsense.sensor.implementation.AccelerometerSensor;
-import com.sheehan.samples.makingsense.sensor.implementation.GyroscopeSensor;
+import com.sheehan.samples.makingsense.sensor.value.AccelerometerValue;
+import com.sheehan.samples.makingsense.sensor.value.GyroscopeValue;
 import com.sheehan.samples.makingsense.sensor.value.SensorValue;
 
 import java.util.ArrayList;
@@ -81,13 +75,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 updateSensorState();
             }
         });
-        mSensorAdapter = new SensorAdapter(this, mSensorValueList = getSensorList());
+        mSensorAdapter = new SensorAdapter(this, mSensorValueList = getDefaultSensorList());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mSensorAdapter);
     }
 
-    private List<SensorValue> getSensorList(){
+    private List<SensorValue> getDefaultSensorList(){
         List<SensorValue> list = new ArrayList<>();
+        list.add(new AccelerometerValue(null));
+        list.add(new GyroscopeValue(null));
         return list;
     }
 
@@ -96,6 +92,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             cancelScheduledSensorPull();
             mSensorManager.disconnect();
             mFab.setImageResource(mSensorsOff);
+            mSensorValueList.clear();
+            mSensorValueList.addAll(getDefaultSensorList());
+            mSensorAdapter.notifyDataSetChanged();
             Toast.makeText(MainActivity.this, "Sensors are off...", Toast.LENGTH_SHORT).show();
         } else {
             mSensorManager.connect();
@@ -111,20 +110,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void cancelScheduledSensorPull(){
-        mScheduledThreadPoolExecutor.shutdown();
+        if(mScheduledThreadPoolExecutor != null){
+            mScheduledThreadPoolExecutor.shutdown();
+        }
     }
 
+    /**
+     * Magic happens here.
+     * @return
+     */
     private Runnable getSensorPullRunnable(){
         if(mSensorPullRunnable == null){
             mSensorPullRunnable = new Runnable() {
                 @Override
                 public void run() {
+                    //TODO - Do something way cooler then this...
                     mSensorValueList.clear();
                     SensorContainer sensorContainer = mSensorManager.pop();
                     for(SensorValue sensorValue: sensorContainer.getSensorValues()){
                         mSensorValueList.add(sensorValue);
                     }
-                    mSensorAdapter.notifyDataSetChanged();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Run on ui thread
+                            mSensorAdapter.notifyDataSetChanged();
+                        }
+                    });
+
                 }
             };
         }

@@ -20,7 +20,7 @@ public class AccelerometerValue implements SensorValue {
     }
 
     @Override
-    public Object getValue() {
+    public List<SensorEvent> getValue() {
         return mSensorEventList;
     }
 }
