@@ -40,9 +40,9 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorAdapter.CustomView
         //Setting text view title
         customViewHolder.textViewTitle.setText(sensorValue.getType().getName());
         if (sensorValue.getValue() != null && sensorValue.getValue().size() > 0) {
-            customViewHolder.mHertzTextView.setText("Hertz: " + String.valueOf(sensorValue.getValue().size()));
+            customViewHolder.mHertzTextView.setText(String.valueOf(sensorValue.getValue().size()));
         } else {
-            customViewHolder.mHertzTextView.setText("Hertz: N/A");
+            customViewHolder.mHertzTextView.setText("N/A");
         }
     }
 
